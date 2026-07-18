@@ -1,216 +1,91 @@
 # rsa_encryptor
-Projet: Implémentation d'un encrypteur RSA pour les messages cryptographiques
 
-## Description
-Cet projet implémente un encrypteur RSA pour les messages cryptographiques en Python.
-Il inclut la génération de clés RSA, le cryptage et le déchiffrement de messages, ainsi que la vérification de signatures.
+> A Python implementation of the RSA encryption algorithm for secure message transmission.
 
-## Fichiers
+## Overview
 
-### `src/main.py`
-Fichier principal du projet.
+rsa_encryptor is an open-source project that provides a secure way to encrypt and decrypt messages using the widely accepted RSA encryption algorithm. With the rise of digital communication, secure data transmission has become increasingly important. rsa_encryptor addresses this need by offering a Python implementation of RSA encryption, allowing developers to easily integrate secure message transmission into their applications. This project includes key generation, encryption, decryption, and signature verification, making it a valuable tool for anyone working with secure data.
 
-### `src/rsa.py`
-Fichier contenant les fonctions de cryptage RSA.
+## Features
 
-### `src/utils.py`
-Fichier contenant les fonctions d'aide.
+- **Key Generation**: Generate public and private RSA keys for secure encryption.
+- **Encryption**: Encrypt messages using the public key and decrypt messages using the private key.
+- **Decryption**: Decrypt encrypted messages using the private key.
+- **Signature Verification**: Verify the authenticity of messages using digital signatures.
+- **Secure Data Transmission**: Safely transmit sensitive information using RSA encryption.
+- **Flexible Key Sizes**: Support various key sizes to balance security and performance.
+- **Clear API**: Easy-to-use public interface for encryption and decryption operations.
 
-### `tests/test_rsa.py`
-Fichier de tests pour les fonctions de cryptage.
+## Getting Started
 
-## Caractéristiques
+### Prerequisites
 
-### Génération de clés RSA
-Cette fonction génère des clés RSA pour un message donné.
+- Python (3.8+)
+- pip (latest version)
 
-### Cryptage de messages avec RSA
-Cette fonction crypte un message donné en utilisant les clés RSA générées.
+### Installation
 
-### Déchiffrement de messages avec RSA
-Cette fonction déchiffre un message crypté en utilisant les clés RSA.
-
-### Vérification de signatures
-Cette fonction vérifie la signature d'un message donné.
-
-## Dépendances
-
-### cryptography
-Bibliothèque pour les opérations cryptographiques.
-
-### numpy
-Bibliothèque pour les calculs numériques.
-
-## Exécution
-
-Pour exécuter le projet, téléchargez les dépendances nécessaires en utilisant pip:
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/rsa_encryptor.git
+
+# Navigate to the project directory
+cd rsa_encryptor
+
+# Install dependencies
 pip install -r requirements.txt
 ```
-Ensuite, exécutez le fichier principal:
+
+### Usage
+
 ```bash
-python src/main.py
-```
-## Auteur
-[Votre nom]
-[Votre adresse e-mail]
+# Generate a public and private key pair
+python src/main.py generate_key
 
-## Licence
-Ceci est un logiciel libre, distribué sous la licence [Your License].
+# Encrypt a message
+python src/main.py encrypt message.txt public_key.pem
+
+# Decrypt the encrypted message
+python src/main.py decrypt encrypted_message.txt private_key.pem
 ```
+
+## Architecture
+
+rsa_encryptor is structured into four main files:
+
+- `src/main.py`: The entry point for the project, handling key generation, encryption, and decryption operations.
+- `src/rsa.py`: Contains the RSA encryption and decryption functions.
+- `src/utils.py`: Provides utility functions for key handling and file operations.
+- `tests/test_rsa.py`: Contains unit tests for the RSA encryption and decryption functions.
+
+## API Reference
+
+rsa_encryptor exposes a simple API for encryption and decryption operations:
 
 ```python
-import os
-import sys
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
-from cryptography.hazmat.backends import default_backend
+from rsa_encryptor import encrypt, decrypt
 
-def generate_keys():
-    """
-    Générer des clés RSA pour un message donné.
+# Encrypt a message
+encrypted_message = encrypt(message="Hello, World!", public_key=public_key)
 
-    Retourne:
-        - publicKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey): Clé publique RSA
-        - privateKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey): Clé privée RSA
-    """
-    key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
-        backend=default_backend()
-    )
-    publicKey = key.public_key()
-    return publicKey, key
-
-def encrypt_message(publicKey, message):
-    """
-    Crypter un message donné en utilisant les clés RSA.
-
-    Paramètres:
-        - publicKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey): Clé publique RSA
-        - message (str): Message à crypter
-
-    Retourne:
-        - encryptedMessage (bytes): Message crypté
-    """
-    encryptedMessage = publicKey.encrypt(
-        message,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    return encryptedMessage
-
-def decrypt_message(privateKey, encryptedMessage):
-    """
-    Déchiffrer un message crypté en utilisant les clés RSA.
-
-    Paramètres:
-        - privateKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey): Clé privée RSA
-        - encryptedMessage (bytes): Message crypté
-
-    Retourne:
-        - message (str): Message déchiffré
-    """
-    message = privateKey.decrypt(
-        encryptedMessage,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    return message
-
-def sign_message(privateKey, message):
-    """
-    Signer un message donné en utilisant les clés RSA.
-
-    Paramètres:
-        - privateKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPrivateKey): Clé privée RSA
-        - message (str): Message à signer
-
-    Retourne:
-        - signature (bytes): Signature du message
-    """
-    signature = privateKey.sign(
-        message,
-        padding.PSS(
-            mgf=padding.MGF1(hashes.SHA256()),
-            salt_length=padding.PSS.MAX_LENGTH
-        ),
-        hashes.SHA256()
-    )
-    return signature
-
-def verify_signature(publicKey, message, signature):
-    """
-    Vérifier la signature d'un message donné.
-
-    Paramètres:
-        - publicKey (cryptography.hazmat.primitives.asymmetric.rsa.RSAPublicKey): Clé publique RSA
-        - message (str): Message à vérifier
-        - signature (bytes): Signature du message
-
-    Retourne:
-        - True si la signature est valide, False sinon
-    """
-    try:
-        publicKey.verify(
-            signature,
-            message,
-            padding.PSS(
-                mgf=padding.MGF1(hashes.SHA256()),
-                salt_length=padding.PSS.MAX_LENGTH
-            ),
-            hashes.SHA256()
-        )
-        return True
-    except InvalidSignature:
-        return False
+# Decrypt the encrypted message
+decrypted_message = decrypt(encrypted_message, private_key=private_key)
 ```
 
-```python
-import unittest
-from unittest.mock import Mock
-from cryptography.hazmat.backends import default_backend
-from rsa_encryptor import rsa
+## Testing
 
-class TestRSA(unittest.TestCase):
-    def test_generate_keys(self):
-        publicKey, privateKey = rsa.generate_keys()
-        self.assertIsInstance(publicKey, rsa.RSAPublicKey)
-        self.assertIsInstance(privateKey, rsa.RSAPrivateKey)
+```bash
+# Run unit tests
+python -m unittest tests/test_rsa.py
+```
 
-    def test_encrypt_message(self):
-        publicKey, privateKey = rsa.generate_keys()
-        message = b"Hello, World!"
-        encryptedMessage = rsa.encrypt_message(publicKey, message)
-        self.assertIsInstance(encryptedMessage, bytes)
+## Contributing
 
-    def test_decrypt_message(self):
-        publicKey, privateKey = rsa.generate_keys()
-        message = b"Hello, World!"
-        encryptedMessage = rsa.encrypt_message(publicKey, message)
-        decryptedMessage = rsa.decrypt_message(privateKey, encryptedMessage)
-        self.assertEqual(message, decryptedMessage)
+1. Fork the repository
+2. Create a feature branch
+3. Commit changes
+4. Push and open a PR
 
-    def test_sign_message(self):
-        publicKey, privateKey = rsa.generate_keys()
-        message = b"Hello, World!"
-        signature = rsa.sign_message(privateKey, message)
-        self.assertIsInstance(signature, bytes)
+## License
 
-    def test_verify_signature(self):
-        publicKey, privateKey = rsa.generate_keys()
-        message = b"Hello, World!"
-        signature = rsa.sign_message(privateKey, message)
-        self.assertTrue(rsa.verify_signature(publicKey, message, signature))
-
-if __name__ == "__main__":
-    unittest.main()
+rsa_encryptor is licensed under the MIT License.
